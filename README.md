@@ -8,29 +8,6 @@ A Python-based biometric authentication system that uses facial recognition to v
 
 ---
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Dataset](#dataset)
-- [Project Structure](#project-structure)
-- [Tech Stack](#tech-stack)
-- [Installation](#installation)
-- [How It Works](#how-it-works)
-  - [1. Data Preparation](#1-data-preparation)
-  - [2. Image Preprocessing](#2-image-preprocessing)
-  - [3. Feature Extraction & Template Generation](#3-feature-extraction--template-generation)
-  - [4. Authentication & Identification](#4-authentication--identification)
-  - [5. Threshold Testing](#5-threshold-testing)
-  - [6. Performance Evaluation](#6-performance-evaluation)
-  - [7. Multimodal Biometrics (Optional)](#7-multimodal-biometrics-optional)
-  - [8. Security & Privacy](#8-security--privacy)
-- [Performance Metrics](#performance-metrics)
-- [Team & Responsibilities](#team--responsibilities)
-- [Screenshots](#screenshots)
-- [License](#license)
-
----
 
 ## Overview
 
