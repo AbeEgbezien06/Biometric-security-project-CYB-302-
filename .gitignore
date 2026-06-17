@@ -1,1 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.env
+
+# Project specific
 biometric_data/*
+!biometric_data/kaggle_dataset/

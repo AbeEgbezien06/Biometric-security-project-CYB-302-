@@ -1,1 +1,3 @@
-python-opencv
+opencv-python
+matplotlib
+numpy
