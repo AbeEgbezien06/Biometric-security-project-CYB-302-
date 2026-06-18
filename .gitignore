@@ -11,3 +11,6 @@ env/
 # Project specific
 biometric_data/*
 !biometric_data/kaggle_dataset/
+
+# Numpy Arrays (Scores, Templates)
+*.npy
