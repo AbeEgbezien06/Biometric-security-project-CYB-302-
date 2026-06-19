@@ -261,6 +261,13 @@ Thresholds tested: `0.50, 0.60, 0.70, 0.80, 0.90`
 ---
 
 ### 6. Performance Evaluation
+Running this stage opens a window with two graphs:
+
+1. FAR vs. FRR Graph
+As the threshold increases, FAR drops toward zero while FRR climbs. The point where the two lines cross is the Equal Error Rate (EER) — the optimal balance between security and usability for this dataset. A clean EER crossing confirms the ORB + Euclidean matching pipeline is working correctly.
+
+2. ROC Curve
+Plots Genuine Acceptance Rate against False Acceptance Rate. A curve that bends toward the top-left corner means the system is accurately accepting real users before it starts wrongly accepting impostors.
 
 Three key metrics are calculated:
 
