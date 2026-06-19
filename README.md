@@ -333,9 +333,7 @@ Hamming distance — used to score how closely two fingerprints match
 
 
 Combining the two systems:
-
 Since face scores (Euclidean distance) and fingerprint scores (Hamming distance) use different scales, both are converted to a common scale using Min-Max Normalization.
-
 The normalized scores are then combined using a weighted sum:
 
 Fused Score = (0.6 × Face Score) + (0.4 × Fingerprint Score)
@@ -343,11 +341,6 @@ Fused Score = (0.6 × Face Score) + (0.4 × Fingerprint Score)
 Result:
 
 Comparing ROC curves of the fused system against the face-only baseline showed that fusion significantly lowered the EER — meaning the combined system is more accurate and harder to fool than either biometric alone.
-
-
-Stage 7 — Multimodal Fusion (Face + Fingerprint)
-
-To improve on the face-only (unimodal) system, a second biometric — fingerprint — was added and fused with facial scores.
 
 The work is split across three scripts:
 
