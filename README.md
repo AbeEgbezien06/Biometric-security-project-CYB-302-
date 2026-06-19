@@ -321,6 +321,56 @@ import matplotlib.pyplot as plt
 ---
 
 ### 7. Multimodal Biometrics (Optional)
+— Multimodal Fusion (Face + Fingerprint)
+
+To improve on the face-only (unimodal) system, we added a second biometric: fingerprint matching, then combined both for stronger security.
+
+Fingerprint pipeline:
+
+CLAHE (Contrast Limited Adaptive Histogram Equalization) — enhances ridge contrast
+Binary Thresholding — isolates the fingerprint ridge structure
+Hamming distance — used to score how closely two fingerprints match
+
+
+Combining the two systems:
+
+Since face scores (Euclidean distance) and fingerprint scores (Hamming distance) use different scales, both are converted to a common scale using Min-Max Normalization.
+
+The normalized scores are then combined using a weighted sum:
+
+Fused Score = (0.6 × Face Score) + (0.4 × Fingerprint Score)
+
+Result:
+
+Comparing ROC curves of the fused system against the face-only baseline showed that fusion significantly lowered the EER — meaning the combined system is more accurate and harder to fool than either biometric alone.
+
+
+Stage 7 — Multimodal Fusion (Face + Fingerprint)
+
+To improve on the face-only (unimodal) system, a second biometric — fingerprint — was added and fused with facial scores.
+
+The work is split across three scripts:
+
+1. task7a_fingerprint_engine.py — Fingerprint Pipeline
+A separate pipeline built specifically for fingerprints, since they need ridge analysis rather than facial geometry:
+
+
+CLAHE (Contrast Limited Adaptive Histogram Equalization) and Binary Thresholding to isolate ridge patterns
+Extracts features and calculates Hamming distance scores (instead of Euclidean, since fingerprint data is structural, not spatial)
+
+
+2. task7b_multimodal_fusion.py — Fusion Layer
+Face scores (Euclidean) and fingerprint scores (Hamming) are on different scales, so this script:
+
+
+Applies Min-Max Normalization to bring both score types onto the same 0.0–1.0 scale
+Combines them using a weighted sum: 60% face + 40% fingerprint
+
+
+3. task7c_comparative_evaluation.py — Comparison
+Plots the ROC curves of the unimodal (face-only) and multimodal (face + fingerprint) systems on the same graph.
+
+Result: The multimodal system had a noticeably lower EER than the face-only system. Combining two biometrics narrows the overlap between genuine and impostor scores, making the system more resistant to single points of failure.
 
 Combines two biometric scores for improved accuracy and robustness.
 
