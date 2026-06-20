@@ -70,7 +70,6 @@ dataset/
 | Test Set | img3+ per person | Verification / Identification |
 
 
-
 ## Tech Stack
 
 | Tool / Library | Purpose |
