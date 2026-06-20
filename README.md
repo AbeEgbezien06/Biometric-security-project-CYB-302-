@@ -1,4 +1,4 @@
-# Biometric-security-project-CYB-302-
+# Biometric-security-project-CYB-302
 A simple biometric authentication system that:
 Uses a biometric dataset (Face or Fingerprint), Cleans and processes images, Extracts features from images, Compares people for matching, Tests different security thresholds , Calculates accuracy metrics,Tries multimodal authentication (optional enhancement) and Protects biometric data
 
@@ -11,7 +11,7 @@ A Python-based biometric authentication system that uses facial recognition to v
 
 ## Overview
 
-This project implements a **biometric authentication system** using facial images. It demonstrates the core concepts of a real-world biometric pipeline including:
+This project implements a **biometric authentication system** using facial images and fingerprint . It demonstrates the core concepts of a real-world biometric pipeline including:
 
 - Biometric data capture and organization
 - Image quality enhancement through preprocessing
@@ -69,43 +69,7 @@ dataset/
 | Enrollment Set | img1, img2 per person | Registration / Template creation |
 | Test Set | img3+ per person | Verification / Identification |
 
----
 
-## Project Structure
-
-```
-biometric-auth-system/
-│
-├── dataset/                    # ORL face images (enrollment + test splits)
-│
-├── preprocessing/
-│   └── preprocess.py           # Grayscale, resize, normalize, denoise, equalize
-│
-├── features/
-│   └── extract_features.py     # ORB/SIFT feature extraction, template generation
-│
-├── matching/
-│   └── authenticate.py         # Verification (1:1) and identification (1:N)
-│
-├── evaluation/
-│   ├── threshold_test.py       # FAR/FRR at multiple thresholds
-│   └── metrics.py              # EER calculation, ROC/DET curve plotting
-│
-├── security/
-│   └── encrypt_templates.py    # Fernet encryption for stored biometric templates
-│
-├── multimodal/
-│   └── score_fusion.py         # Optional: combine two biometric scores
-│
-├── templates/                  # Stored (encrypted) biometric templates
-│
-├── outputs/                    # Graphs, screenshots, results
-│
-├── requirements.txt
-└── README.md
-```
-
----
 
 ## Tech Stack
 
