@@ -384,22 +384,23 @@ Steps:
 
 ---
 
-### 8. Security & Privacy
+### 8.  Security & Encryption
 
-**Threat Model:**
+Faces and fingerprints can't be "reset" like a password, so the stored templates need strong protection.
 
-| Stage | Threat |
-|-------|--------|
-| Capture | Fake face / spoofed biometric |
-| Transmission | Data interception (man-in-the-middle) |
-| Storage | Database theft |
-| Matching | System manipulation |
+1. Threat Identification
+We mapped out where the system could be attacked — during capture, storage, and matching.
 
-**Mitigations implemented:**
+2. Database Encryption
+The template database is locked using AES encryption, built as a command-line tool with Python's argparse:
 
-- **Encryption** — Biometric templates are encrypted using `Fernet` (symmetric encryption) before storage
-- **Access Control** — Only authorized processes can read/decrypt templates
-- **Cancelable Biometrics** — If a template is compromised, a new transformed version can be generated without changing the underlying biometric
+bashpython secure_db.py --encrypt   # locks the database
+python secure_db.py --decrypt   # unlocks the database
+
+Keeping --encrypt and --decrypt as separate flags means the two actions can never run at the same time by accident. Even if someone steals the database files, the templates inside are unreadable without the key.
+
+3. Cancelable Biometrics (Concept)
+We also looked into cancelable biometrics — scrambling a template through a one-way transformation before saving it. If a template is ever compromised, it can be revoked and the user re-enrolled with a new transformed version, similar to resetting a password.
 
 **Ethical Considerations:**
 
