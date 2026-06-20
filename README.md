@@ -185,9 +185,10 @@ The matching engine uses Euclidean distance to compare a live face (the "probe")
 
 Two types of scores are generated:
 
-
-Genuine scores — a user compared against their own template
-Impostor scores — a user compared against someone else's template
+### Genuine scores 
+- a user compared against their own template
+### Impostor scores 
+- a user compared against someone else's template
 
 
 In our testing, genuine comparisons averaged ~21 matching points, while impostor comparisons averaged only ~6. Both score arrays are saved to disk with np.save() so the matching algorithm doesn't need to be re-run every time — this also feeds directly into Stage 5.
