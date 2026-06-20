@@ -106,7 +106,7 @@ pip install -r requirements.txt
 
 **3. Download the dataset**
 
-Download the ORL dataset from [Kaggle](https://www.kaggle.com/datasets/tavarez/the-orl-database-for-training-and-testing) and place it in the `dataset/` folder following the structure above.
+Download the ORL dataset from [Kaggle](https://www.kaggle.com/datasets/tavarez/the-orl-database-for-training-and-testing)
 
 ---
 
