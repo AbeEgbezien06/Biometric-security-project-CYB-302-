@@ -48,19 +48,6 @@ This project implements a **biometric authentication system** using facial image
 
 **Download:** [Kaggle — ORL Database for Training and Testing](https://www.kaggle.com/datasets/tavarez/the-orl-database-for-training-and-testing)
 
-**Folder Structure:**
-
-```
-dataset/
-├── person1/
-│   ├── img1.jpg
-│   ├── img2.jpg
-│   └── img3.jpg
-├── person2/
-│   ├── img1.jpg
-│   └── ...
-└── ...
-```
 
 **Split:**
 
