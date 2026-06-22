@@ -1,4 +1,4 @@
-# Biometric-security-project-CYB-302-
+# Biometric-security-project-CYB-302
 A simple biometric authentication system that:
 Uses a biometric dataset (Face or Fingerprint), Cleans and processes images, Extracts features from images, Compares people for matching, Tests different security thresholds , Calculates accuracy metrics,Tries multimodal authentication (optional enhancement) and Protects biometric data
 
@@ -11,7 +11,7 @@ A Python-based biometric authentication system that uses facial recognition to v
 
 ## Overview
 
-This project implements a **biometric authentication system** using facial images. It demonstrates the core concepts of a real-world biometric pipeline including:
+This project implements a **biometric authentication system** using facial images and fingerprint . It demonstrates the core concepts of a real-world biometric pipeline including:
 
 - Biometric data capture and organization
 - Image quality enhancement through preprocessing
@@ -69,43 +69,6 @@ dataset/
 | Enrollment Set | img1, img2 per person | Registration / Template creation |
 | Test Set | img3+ per person | Verification / Identification |
 
----
-
-## Project Structure
-
-```
-biometric-auth-system/
-│
-├── dataset/                    # ORL face images (enrollment + test splits)
-│
-├── preprocessing/
-│   └── preprocess.py           # Grayscale, resize, normalize, denoise, equalize
-│
-├── features/
-│   └── extract_features.py     # ORB/SIFT feature extraction, template generation
-│
-├── matching/
-│   └── authenticate.py         # Verification (1:1) and identification (1:N)
-│
-├── evaluation/
-│   ├── threshold_test.py       # FAR/FRR at multiple thresholds
-│   └── metrics.py              # EER calculation, ROC/DET curve plotting
-│
-├── security/
-│   └── encrypt_templates.py    # Fernet encryption for stored biometric templates
-│
-├── multimodal/
-│   └── score_fusion.py         # Optional: combine two biometric scores
-│
-├── templates/                  # Stored (encrypted) biometric templates
-│
-├── outputs/                    # Graphs, screenshots, results
-│
-├── requirements.txt
-└── README.md
-```
-
----
 
 ## Tech Stack
 
@@ -143,7 +106,7 @@ pip install -r requirements.txt
 
 **3. Download the dataset**
 
-Download the ORL dataset from [Kaggle](https://www.kaggle.com/datasets/tavarez/the-orl-database-for-training-and-testing) and place it in the `dataset/` folder following the structure above.
+Download the ORL dataset from [Kaggle](https://www.kaggle.com/datasets/tavarez/the-orl-database-for-training-and-testing)
 
 ---
 
@@ -218,6 +181,18 @@ Templates are stored securely for use during the matching phase.
 
 ### 4. Authentication & Identification
 
+The matching engine uses Euclidean distance to compare a live face (the "probe") against the saved templates in the database.
+
+Two types of scores are generated:
+
+### Genuine scores 
+- a user compared against their own template
+### Impostor scores 
+- a user compared against someone else's template
+
+
+In our testing, genuine comparisons averaged ~21 matching points, while impostor comparisons averaged only ~6. Both score arrays are saved to disk with np.save() so the matching algorithm doesn't need to be re-run every time — this also feeds directly into Stage 5.
+
 **Verification (1:1)** — answers "Is this really Person X?"
 
 ```
@@ -250,6 +225,15 @@ A threshold determines whether a match score is accepted or rejected.
 If Score ≥ Threshold → ACCEPT (person verified)
 If Score < Threshold → REJECT (person denied)
 ```
+Phase 1 — Proof of Concept
+A single fixed threshold (e.g. T = 15) is tested against individual scores to show the system can make a basic Accept/Reject decision.
+
+Phase 2 — Full Threshold Sweep
+The threshold is automatically swept from 0 up to the highest recorded score. At each step, the system counts how many impostors got through and how many genuine users got locked out. This maps the full trade-off between security and usability.
+
+What different thresholds mean in practice:
+
+ThresholdEffectBest suited forLow (e.g. T = 2)Easy access, but lets impostors through (high FAR)Low-risk settings, e.g. a cafeteriaHigh (e.g. T = 25)Blocks impostors, but locks out real users (high FRR)High-risk settings, e.g. a security operations center
 
 Thresholds tested: `0.50, 0.60, 0.70, 0.80, 0.90`
 
@@ -261,6 +245,13 @@ Thresholds tested: `0.50, 0.60, 0.70, 0.80, 0.90`
 ---
 
 ### 6. Performance Evaluation
+Running this stage opens a window with two graphs:
+
+1. FAR vs. FRR Graph
+As the threshold increases, FAR drops toward zero while FRR climbs. The point where the two lines cross is the Equal Error Rate (EER) — the optimal balance between security and usability for this dataset. A clean EER crossing confirms the ORB + Euclidean matching pipeline is working correctly.
+
+2. ROC Curve
+Plots Genuine Acceptance Rate against False Acceptance Rate. A curve that bends toward the top-left corner means the system is accurately accepting real users before it starts wrongly accepting impostors.
 
 Three key metrics are calculated:
 
@@ -294,6 +285,49 @@ import matplotlib.pyplot as plt
 ---
 
 ### 7. Multimodal Biometrics (Optional)
+— Multimodal Fusion (Face + Fingerprint)
+
+To improve on the face-only (unimodal) system, we added a second biometric: fingerprint matching, then combined both for stronger security.
+
+Fingerprint pipeline:
+
+CLAHE (Contrast Limited Adaptive Histogram Equalization) — enhances ridge contrast
+Binary Thresholding — isolates the fingerprint ridge structure
+Hamming distance — used to score how closely two fingerprints match
+
+
+Combining the two systems:
+Since face scores (Euclidean distance) and fingerprint scores (Hamming distance) use different scales, both are converted to a common scale using Min-Max Normalization.
+The normalized scores are then combined using a weighted sum:
+
+Fused Score = (0.6 × Face Score) + (0.4 × Fingerprint Score)
+
+Result:
+
+Comparing ROC curves of the fused system against the face-only baseline showed that fusion significantly lowered the EER — meaning the combined system is more accurate and harder to fool than either biometric alone.
+
+The work is split across three scripts:
+
+1. task7a_fingerprint_engine.py — Fingerprint Pipeline
+A separate pipeline built specifically for fingerprints, since they need ridge analysis rather than facial geometry:
+
+
+CLAHE (Contrast Limited Adaptive Histogram Equalization) and Binary Thresholding to isolate ridge patterns
+Extracts features and calculates Hamming distance scores (instead of Euclidean, since fingerprint data is structural, not spatial)
+
+
+2. task7b_multimodal_fusion.py — Fusion Layer
+Face scores (Euclidean) and fingerprint scores (Hamming) are on different scales, so this script:
+
+
+Applies Min-Max Normalization to bring both score types onto the same 0.0–1.0 scale
+Combines them using a weighted sum: 60% face + 40% fingerprint
+
+
+3. task7c_comparative_evaluation.py — Comparison
+Plots the ROC curves of the unimodal (face-only) and multimodal (face + fingerprint) systems on the same graph.
+
+Result: The multimodal system had a noticeably lower EER than the face-only system. Combining two biometrics narrows the overlap between genuine and impostor scores, making the system more resistant to single points of failure.
 
 Combines two biometric scores for improved accuracy and robustness.
 
@@ -314,22 +348,23 @@ Steps:
 
 ---
 
-### 8. Security & Privacy
+### 8.  Security & Encryption
 
-**Threat Model:**
+Faces and fingerprints can't be "reset" like a password, so the stored templates need strong protection.
 
-| Stage | Threat |
-|-------|--------|
-| Capture | Fake face / spoofed biometric |
-| Transmission | Data interception (man-in-the-middle) |
-| Storage | Database theft |
-| Matching | System manipulation |
+1. Threat Identification
+We mapped out where the system could be attacked — during capture, storage, and matching.
 
-**Mitigations implemented:**
+2. Database Encryption
+The template database is locked using AES encryption, built as a command-line tool with Python's argparse:
 
-- **Encryption** — Biometric templates are encrypted using `Fernet` (symmetric encryption) before storage
-- **Access Control** — Only authorized processes can read/decrypt templates
-- **Cancelable Biometrics** — If a template is compromised, a new transformed version can be generated without changing the underlying biometric
+bashpython secure_db.py --encrypt   # locks the database
+python secure_db.py --decrypt   # unlocks the database
+
+Keeping --encrypt and --decrypt as separate flags means the two actions can never run at the same time by accident. Even if someone steals the database files, the templates inside are unreadable without the key.
+
+3. Cancelable Biometrics (Concept)
+We also looked into cancelable biometrics — scrambling a template through a one-way transformation before saving it. If a template is ever compromised, it can be revoked and the user re-enrolled with a new transformed version, similar to resetting a password.
 
 **Ethical Considerations:**
 
