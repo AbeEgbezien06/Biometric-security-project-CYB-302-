@@ -1,6 +1,5 @@
 # Biometric-security-project-CYB-302-
-A simple biometric authentication system that:
-Uses a biometric dataset (Face or Fingerprint), Cleans and processes images, Extracts features from images, Compares people for matching, Tests different security thresholds , Calculates accuracy metrics,Tries multimodal authentication (optional enhancement) and Protects biometric data
+A Python-based multimodal biometric authentication system that progresses from a unimodal facial recognition baseline through to a secure, fused Face + Fingerprint pipeline with cryptographic template protection. Built as a group laboratory assessment covering the full biometric pipeline — from live data capture and preprocessing to feature extraction, score-level fusion, threshold testing, performance evaluation, and AES-encrypted storage.
 
 # 🔐 Biometric Authentication System
 
@@ -11,99 +10,34 @@ A Python-based biometric authentication system that uses facial recognition to v
 
 ## Overview
 
-This project implements a **biometric authentication system** using facial images. It demonstrates the core concepts of a real-world biometric pipeline including:
+This project implements a complete biometric authentication pipeline in three phases:
 
-- Biometric data capture and organization
-- Image quality enhancement through preprocessing
-- Feature extraction and template generation
-- 1:1 Verification and 1:N Identification
-- Security threshold tuning
-- FAR, FRR, and EER performance measurement
-- Encryption and privacy protection of stored templates
+Phase 1 — Unimodal Facial Baseline: Live webcam capture, ORB feature extraction, Euclidean matching, and EER performance evaluation (baseline EER: 35.80%).
 
+Phase 2 — Multimodal Fusion: A secondary fingerprint modality (Kaggle dataset) is processed via CLAHE and Hamming distance scoring, then fused with facial scores using weighted score-level fusion (60% Face / 40% Fingerprint), significantly reducing the EER.
+
+Phase 3 — Cryptographic Vault: AES encryption (via Python's cryptography.fernet library) locks all stored biometric template matrices (.npy files) into .enc payloads, accessible only through an authorized CLI.
 ---
 
 ## Features
 
-- ✅ Face image preprocessing (grayscale, resize, normalize, denoise, enhance contrast)
-- ✅ Feature extraction using ORB / SIFT / face embeddings
-- ✅ Biometric template generation and storage
-- ✅ 1:1 Verification (identity claim matching)
-- ✅ 1:N Identification (unknown person vs. database)
-- ✅ Configurable security thresholds
-- ✅ FAR, FRR, and EER calculation
-- ✅ ROC and DET curve visualization
-- ✅ Biometric template encryption (Fernet)
-- ✅ Optional: Multimodal score fusion
-
+- Live webcam facial data capture, segmented into enrolment and test sets
+- Image preprocessing: grayscale conversion, Histogram Equalization, Gaussian noise reduction
+- ORB (Oriented FAST and Rotated BRIEF) feature extraction and template generation
+- Fingerprint ridge analysis via CLAHE and Binary Thresholding
+- Euclidean distance matching (facial) and Hamming distance matching (fingerprint)
+- Genuine and impostor score matrix generation and .npy caching
+- Full FAR / FRR threshold sweep and EER calculation
+- ROC curve comparison: unimodal vs. multimodal
+- Min-Max Normalization for cross-modality score alignment
+- AES encryption / decryption CLI for biometric template protection
 ---
 
-## Dataset
+## Datasets Used 
+Primary (Face): Live webcam captures, organized into per-subject folders.
 
-**ORL Face Database** (also known as the AT&T Database of Faces)
+Secondary (Fingerprint): Kaggle fingerprint dataset.
 
-- 40 subjects × 10 images each = 400 total images
-- Images are 92×112 pixels, grayscale PGM format
-- Variations in lighting, expression, and pose
-
-**Download:** [Kaggle — ORL Database for Training and Testing](https://www.kaggle.com/datasets/tavarez/the-orl-database-for-training-and-testing)
-
-**Folder Structure:**
-
-```
-dataset/
-├── person1/
-│   ├── img1.jpg
-│   ├── img2.jpg
-│   └── img3.jpg
-├── person2/
-│   ├── img1.jpg
-│   └── ...
-└── ...
-```
-
-**Split:**
-
-| Set | Images Used | Purpose |
-|-----|-------------|---------|
-| Enrollment Set | img1, img2 per person | Registration / Template creation |
-| Test Set | img3+ per person | Verification / Identification |
-
----
-
-## Project Structure
-
-```
-biometric-auth-system/
-│
-├── dataset/                    # ORL face images (enrollment + test splits)
-│
-├── preprocessing/
-│   └── preprocess.py           # Grayscale, resize, normalize, denoise, equalize
-│
-├── features/
-│   └── extract_features.py     # ORB/SIFT feature extraction, template generation
-│
-├── matching/
-│   └── authenticate.py         # Verification (1:1) and identification (1:N)
-│
-├── evaluation/
-│   ├── threshold_test.py       # FAR/FRR at multiple thresholds
-│   └── metrics.py              # EER calculation, ROC/DET curve plotting
-│
-├── security/
-│   └── encrypt_templates.py    # Fernet encryption for stored biometric templates
-│
-├── multimodal/
-│   └── score_fusion.py         # Optional: combine two biometric scores
-│
-├── templates/                  # Stored (encrypted) biometric templates
-│
-├── outputs/                    # Graphs, screenshots, results
-│
-├── requirements.txt
-└── README.md
-```
 
 ---
 
@@ -119,42 +53,25 @@ biometric-auth-system/
 | **cryptography (Fernet)** | Encrypting biometric templates at rest |
 
 ---
+Run scripts in order. Each task depends on the .npy caches written by the previous one.
 
 ## Installation
 
 **1. Clone the repository**
 
-```bash
-git clone https://github.com/your-username/biometric-auth-system.git
-cd biometric-auth-system
-```
-
 **2. Install dependencies**
 
-```bash
-pip install opencv-python numpy matplotlib scikit-learn cryptography
-```
+**3. Download the datasets**
 
-Or using the requirements file:
-
-```bash
-pip install -r requirements.txt
-```
-
-**3. Download the dataset**
-
-Download the ORL dataset from [Kaggle](https://www.kaggle.com/datasets/tavarez/the-orl-database-for-training-and-testing) and place it in the `dataset/` folder following the structure above.
-
+Download the ORL dataset from [Kaggle](https://www.kaggle.com/datasets/tavarez/the-orl-database-for-training-and-testing) and place it in the `biometric-data/` folder 
+Download the Fingerprint dataset as well from [fingerprint_dataset](https://www.kaggle.com/datasets/kundurunonieshreddy/finger-printdataset)
 ---
 
 ## How It Works
 
 ### 1. Data Preparation
 
-The dataset is downloaded and organized into per-person subfolders. Images are manually reviewed and split into:
-
-- **Enrollment set** — used to create biometric templates (registration phase)
-- **Test set** — used during authentication (verification/identification phase)
+task1_data_pipeline.py initializes the biometric_data/ directory tree and captures live facial images via webcam, strictly routing frames into enrolment_set/ or test_set/ subdirectories.
 
 Common data quality issues logged during this step:
 - Blurry images
@@ -168,47 +85,11 @@ Common data quality issues logged during this step:
 
 ### 2. Image Preprocessing
 
-Each image is passed through a standardized preprocessing pipeline before feature extraction:
-
-```python
-import cv2
-
-img = cv2.imread("image.jpg")                          # Step 1: Load
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)           # Step 2: Grayscale
-resized = cv2.resize(gray, (100, 100))                 # Step 3: Resize to 100×100
-normalized = resized / 255.0                           # Step 4: Normalize intensity
-blurred = cv2.GaussianBlur(normalized, (5, 5), 0)     # Step 5: Remove noise
-equalized = cv2.equalizeHist(resized)                  # Step 6: Contrast enhancement
-```
-
-| Step | Operation | Reason |
-|------|-----------|--------|
-| Load | `cv2.imread()` | Read image from disk |
-| Grayscale | `cv2.cvtColor()` | Reduce complexity, standardize input |
-| Resize | `cv2.resize()` | Ensure all images are the same size |
-| Normalize | Divide by 255 | Bring pixel values to [0, 1] range |
-| Denoise | Gaussian / Median Blur | Remove noise artifacts |
-| Equalize | Histogram Equalization | Improve low-contrast images |
-
----
+Each image passes through a standardized pipeline before feature extraction: grayscale conversion, Histogram Equalization for contrast normalization, and Gaussian blur for noise reduction. Outputs are cached in processed_ directories.
 
 ### 3. Feature Extraction & Template Generation
 
-Images are converted into compact numerical vectors called **biometric templates**.
-
-```python
-orb = cv2.ORB_create()
-keypoints, descriptors = orb.detectAndCompute(image, None)
-# descriptors → [0.21, 0.55, 0.18, ...]  ← this is the biometric template
-```
-
-**Available methods:**
-
-| Method | Difficulty | Notes |
-|--------|-----------|-------|
-| ORB | Beginner | Fast, open-source, good for face matching |
-| SIFT | Intermediate | More accurate, scale-invariant |
-| Face Embeddings | Advanced | Deep learning-based, highest accuracy |
+Images are converted into compact numerical vectors called **biometric templates**.ORB (Oriented FAST and Rotated BRIEF) detects spatially invariant keypoints and computes binary descriptors. These descriptors form the biometric template stored as a .npy NumPy array.
 
 Templates are stored securely for use during the matching phase.
 
@@ -216,30 +97,19 @@ Templates are stored securely for use during the matching phase.
 
 ---
 
-### 4. Authentication & Identification
+### 4. Matching & Score Generation
 
-The matching engine uses Euclidean distance to compare a live face (the "probe") against the saved templates in the database.
+The matching engine uses Euclidean distance to compare a live face (the "probe") against the saved templates in the database.task4_euclidean_matching.py performs 1:N comparisons — every test probe against every enrolled template. Comparisons between the same subject populate genuine_scores.npy; cross-subject comparisons populate impostor_scores.npy
 
 Two types of scores are generated:
-
 
 Genuine scores — a user compared against their own template
 Impostor scores — a user compared against someone else's template
 
 
-In our testing, genuine comparisons averaged ~21 matching points, while impostor comparisons averaged only ~6. Both score arrays are saved to disk with np.save() so the matching algorithm doesn't need to be re-run every time — this also feeds directly into Stage 5.
-
 **Verification (1:1)** — answers "Is this really Person X?"
 
-```
-Claimed Template  ←→  Stored Template for X  →  Match Score
-```
-
 **Identification (1:N)** — answers "Who is this person?"
-
-```
-Unknown Template  ←→  All Templates in Database  →  Best Match
-```
 
 **Similarity Measures:**
 
@@ -255,12 +125,8 @@ Match scores are recorded separately:
 
 ### 5. Threshold Testing
 
-A threshold determines whether a match score is accepted or rejected.
+A threshold determines whether a match score is accepted or rejected.A full threshold sweep runs from 0 to the maximum recorded score. At each step, the system counts false acceptances (impostors let through) and false rejections (genuine users locked out), building a complete FAR/FRR trade-off table.
 
-```
-If Score ≥ Threshold → ACCEPT (person verified)
-If Score < Threshold → REJECT (person denied)
-```
 Phase 1 — Proof of Concept
 A single fixed threshold (e.g. T = 15) is tested against individual scores to show the system can make a basic Accept/Reject decision.
 
@@ -273,14 +139,9 @@ ThresholdEffectBest suited forLow (e.g. T = 2)Easy access, but lets impostors th
 
 Thresholds tested: `0.50, 0.60, 0.70, 0.80, 0.90`
 
-| Threshold | Effect |
-|-----------|--------|
-| Low (e.g. 0.50) | Easier to log in — but attackers more likely accepted |
-| High (e.g. 0.90) | More secure — but real users may be rejected |
-
----
 
 ### 6. Performance Evaluation
+task6_performance.py finds the Equal Error Rate (EER) — the threshold where FAR = FRR — and renders ROC and DET curves. The unimodal facial baseline settled at EER = 35.80%.
 Running this stage opens a window with two graphs:
 
 1. FAR vs. FRR Graph
@@ -289,48 +150,12 @@ As the threshold increases, FAR drops toward zero while FRR climbs. The point wh
 2. ROC Curve
 Plots Genuine Acceptance Rate against False Acceptance Rate. A curve that bends toward the top-left corner means the system is accurately accepting real users before it starts wrongly accepting impostors.
 
-Three key metrics are calculated:
 
-**FAR — False Acceptance Rate**
-> Percentage of impostors incorrectly accepted
-
-```
-FAR = False Acceptances / Total Impostor Attempts
-```
-
-**FRR — False Rejection Rate**
-> Percentage of genuine users incorrectly rejected
-
-```
-FRR = False Rejections / Total Genuine Attempts
-```
-
-**EER — Equal Error Rate**
-> The threshold point where FAR = FRR. Lower EER = better system.
-
-**Visualizations generated:**
-
-- 📈 **ROC Curve** — True Positive Rate vs. False Positive Rate
-- 📉 **DET Curve** — FRR vs. FAR (log scale)
-
-```python
-import matplotlib.pyplot as plt
-# Plots generated using matplotlib and saved to outputs/
-```
-
----
-
-### 7. Multimodal Biometrics (Optional)
+### 7. Multimodal Biometrics 
 — Multimodal Fusion (Face + Fingerprint)
+The fingerprint pipeline applies CLAHE to enhance ridge contrast, Binary Thresholding to isolate structural patterns, and Hamming distance for structural matching. Since Euclidean (facial) and Hamming (fingerprint) scores operate on different scales, both are brought to a common 0.0–1.0 range via Min-Max Normalization before the weighted fusion step:
 
 To improve on the face-only (unimodal) system, we added a second biometric: fingerprint matching, then combined both for stronger security.
-
-Fingerprint pipeline:
-
-CLAHE (Contrast Limited Adaptive Histogram Equalization) — enhances ridge contrast
-Binary Thresholding — isolates the fingerprint ridge structure
-Hamming distance — used to score how closely two fingerprints match
-
 
 Combining the two systems:
 Since face scores (Euclidean distance) and fingerprint scores (Hamming distance) use different scales, both are converted to a common scale using Min-Max Normalization.
@@ -340,7 +165,7 @@ Fused Score = (0.6 × Face Score) + (0.4 × Fingerprint Score)
 
 Result:
 
-Comparing ROC curves of the fused system against the face-only baseline showed that fusion significantly lowered the EER — meaning the combined system is more accurate and harder to fool than either biometric alone.
+Comparing ROC curves of the fused system against the face-only baseline showed that fusion significantly lowered the bined system is more accurate and harder to fool than either biometric alone.
 
 The work is split across three scripts:
 
@@ -365,50 +190,16 @@ Plots the ROC curves of the unimodal (face-only) and multimodal (face + fingerpr
 
 Result: The multimodal system had a noticeably lower EER than the face-only system. Combining two biometrics narrows the overlap between genuine and impostor scores, making the system more resistant to single points of failure.
 
-Combines two biometric scores for improved accuracy and robustness.
-
-**Score Fusion Example:**
-
-```python
-# Weighted sum fusion
-final_score = 0.7 * score_system_A + 0.3 * score_system_B
-```
-
-Steps:
-1. Get individual scores from System A and System B
-2. Normalize scores to the same scale
-3. Apply fusion rule (sum or weighted average)
-4. Re-run matching with fused scores and compare EER
-
 > **Why multimodal?** If one biometric fails (e.g., dirty fingerprint), the second modality provides a fallback — improving both accuracy and resistance to spoofing.
 
 ---
 
 ### 8. Security & Privacy
 
-**Threat Model:**
+task8_template_security.py applies AES symmetric encryption via cryptography.fernet to all .npy template matrices, locking them into .enc payloads. Even if the database is exfiltrated, the biometric templates remain cryptographically unreadable without the vault key.
 
-| Stage | Threat |
-|-------|--------|
-| Capture | Fake face / spoofed biometric |
-| Transmission | Data interception (man-in-the-middle) |
-| Storage | Database theft |
-| Matching | System manipulation |
+Beyond encryption, the system also considered cancelable biometrics — a complementary one-way transformation strategy. Unlike AES (which is reversible), cancelable biometrics irreversibly scramble templates before storage. If a template is ever compromised, administrators can revoke it and re-enroll the user without changing the underlying biometric. This technique was documented in the lab report as a theoretical extension; the implemented code uses two-way AES to satisfy the rubric requirement of recoverable template storage.
 
-**Mitigations implemented:**
-
-- **Encryption** — Biometric templates are encrypted using `Fernet` (symmetric encryption) before storage
-- **Access Control** — Only authorized processes can read/decrypt templates
-- **Cancelable Biometrics** — If a template is compromised, a new transformed version can be generated without changing the underlying biometric
-
-**Ethical Considerations:**
-
-- User consent must be obtained before capturing biometrics
-- Data retention policies must be defined and enforced
-- Users have the right to request deletion of their data
-- System must comply with relevant data protection regulations (e.g., NDPR in Nigeria, GDPR in Europe)
-
----
 
 ## Performance Metrics
 
@@ -421,44 +212,6 @@ Results are recorded and tabulated across thresholds:
 | EER Point | FAR = FRR | — | Optimal operating point |
 | 0.90 | Low | High | Too restrictive |
 
----
-
-## Team & Responsibilities
-
-| Student | Role |
-|---------|------|
-| Student 1 | Dataset Collection |
-| Student 2 | Dataset Organization |
-| Student 3 | Image Preprocessing |
-| Student 4 | Feature Extraction |
-| Student 5 | Template Generation |
-| Student 6 | Authentication & Matching |
-| Student 7 | Threshold Testing |
-| Student 8 | FAR / FRR / EER Calculation |
-| Student 9 | Security & Encryption |
-| Student 10 | Report Writing & Presentation |
-
----
-
-## Screenshots
-
-> _Add screenshots of your results here. Suggested images to include:_
-
-- `outputs/before_after_preprocessing.png` — Side-by-side original vs. processed image
-- `outputs/feature_keypoints.png` — Detected ORB keypoints on a face
-- `outputs/roc_curve.png` — ROC curve across thresholds
-- `outputs/det_curve.png` — DET curve
-- `outputs/far_frr_plot.png` — FAR and FRR vs. threshold graph
-
----
-
-## Project Timeline
-
-| Week | Tasks |
-|------|-------|
-| Week 1 | Download dataset, organize data, preprocess images, take screenshots |
-| Week 2 | Extract features, perform matching, test thresholds |
-| Week 3 | Calculate FAR/FRR/EER, create graphs, add security section, write report |
 
 ---
 
