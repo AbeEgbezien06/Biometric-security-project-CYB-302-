@@ -349,8 +349,9 @@ Steps:
 task8_template_security.py applies AES symmetric encryption via cryptography.fernet to all .npy template matrices, locking them into .enc payloads. Even if the database is exfiltrated, the biometric templates remain cryptographically unreadable without the vault key. 
 Faces and fingerprints can't be "reset" like a password, so the stored templates need strong protection.Two protections were implemented:
 
-AES (Fernet) encryption of the template database, controlled via a command-line interface built with argparse. Separate --encrypt and --decrypt flags keep the two operations from ever running together, so the database can't accidentally be left in an inconsistent or exposed state. Even if the underlying files were exfiltrated, the templates inside remain unreadable without the key.
-Cancelable biometrics — templates are passed through a one-way, irreversible transformation before being stored. If a database is ever compromised, administrators can revoke the affected templates and re-enroll the user with a new transformation, effectively giving biometric credentials a "password reset" equivalent.
+1.AES (Fernet) encryption of the template database, controlled via a command-line interface built with argparse. Separate --encrypt and --decrypt flags keep the two operations from ever running together, so the database can't accidentally be left in an inconsistent or exposed state. Even if the underlying files were exfiltrated, the templates inside remain unreadable without the key.
+
+2.Cancelable biometrics — templates are passed through a one-way, irreversible transformation before being stored. If a database is ever compromised, administrators can revoke the affected templates and re-enroll the user with a new transformation, effectively giving biometric credentials a "password reset" equivalent.
 
 ## Performance Metrics
 
