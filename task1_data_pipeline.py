@@ -18,9 +18,24 @@ def setup_directories():
         os.makedirs(directory, exist_ok=True)
     print("[+] Directories ready.")
 
-def capture_live_samples(subject_id, num_samples=10):
+def capture_live_samples(num_samples=10):
     """Hooks into the webcam to collect varying samples for enrolment and testing."""
-    print(f"\n[*] Starting live capture for: {subject_id}")
+    os.makedirs(LIVE_CAPTURE_DIR, exist_ok=True)
+    
+    # Auto-increment subject session based on existing folders
+    existing_dirs = [d for d in os.listdir(LIVE_CAPTURE_DIR) if os.path.isdir(os.path.join(LIVE_CAPTURE_DIR, d))]
+    
+    subject_ids = []
+    for d in existing_dirs:
+        if d.startswith("subject_"):
+            try:
+                subject_ids.append(int(d.split("_")[1]))
+            except ValueError:
+                pass
+                
+    next_subject_id = max(subject_ids) + 1 if subject_ids else 1
+    
+    print(f"\n[*] Starting live capture for subject: {next_subject_id}")
     print("[!] INSTRUCTIONS: Alter your lighting, angle, or distance slightly during capture.")
     time.sleep(2)
 
@@ -29,7 +44,7 @@ def capture_live_samples(subject_id, num_samples=10):
         print("[-] Error: Could not access the webcam.")
         return
 
-    subject_dir = os.path.join(LIVE_CAPTURE_DIR, f"subject_{subject_id}")
+    subject_dir = os.path.join(LIVE_CAPTURE_DIR, f"subject_{next_subject_id}")
     os.makedirs(subject_dir, exist_ok=True)
 
     count = 0
@@ -42,7 +57,7 @@ def capture_live_samples(subject_id, num_samples=10):
         
         key = cv2.waitKey(1) & 0xFF
         if key == ord('c'):
-            img_path = os.path.join(subject_dir, f"sample_{count+1}.jpg")
+            img_path = os.path.join(subject_dir, f"{count+1}_{next_subject_id}.jpg")
             cv2.imwrite(img_path, frame)
             print(f"[+] Captured {img_path}")
             count += 1
@@ -51,7 +66,7 @@ def capture_live_samples(subject_id, num_samples=10):
 
     cap.release()
     cv2.destroyAllWindows()
-    print(f"[+] Live capture complete for {subject_id}.")
+    print(f"[+] Live capture complete for subject {next_subject_id}.")
 
 def split_data_into_sets(source_directory, split_ratio=0.7):
     """Randomizes and splits data into enrolment and test sets."""
@@ -95,7 +110,7 @@ if __name__ == "__main__":
     setup_directories()
     
     # 1. LIVE CAPTURE: Fire up the webcam and grab 10 samples
-    capture_live_samples(subject_id="live_user_1", num_samples=10)
+    capture_live_samples(num_samples=10)
     
     # 2. PARTITION LIVE DATA: Split the webcam captures (60% enrol, 40% test)
     split_data_into_sets(LIVE_CAPTURE_DIR, split_ratio=0.6)

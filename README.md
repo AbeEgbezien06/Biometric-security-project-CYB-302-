@@ -1,4 +1,4 @@
-# Biometric-security-project-CYB-302-
+# Biometric-security-project-CYB-302
 A simple biometric authentication system that:
 Uses a biometric dataset (Face or Fingerprint), Cleans and processes images, Extracts features from images, Compares people for matching, Tests different security thresholds , Calculates accuracy metrics,Tries multimodal authentication (optional enhancement) and Protects biometric data
 
@@ -10,17 +10,16 @@ A Python-based biometric authentication system that uses facial recognition to v
 
 
 ## Overview
+ Overview
 
-This project implements a **biometric authentication system** using facial images. It demonstrates the core concepts of a real-world biometric pipeline including:
+This project implements a complete biometric authentication pipeline in three phases:
 
-- Biometric data capture and organization
-- Image quality enhancement through preprocessing
-- Feature extraction and template generation
-- 1:1 Verification and 1:N Identification
-- Security threshold tuning
-- FAR, FRR, and EER performance measurement
-- Encryption and privacy protection of stored templates
+Phase 1 — Unimodal Facial Baseline: Live webcam capture, ORB feature extraction, Euclidean matching, and EER performance evaluation (baseline EER: 35.80%).
 
+Phase 2 — Multimodal Fusion: A secondary fingerprint modality (Kaggle dataset) is processed via CLAHE and Hamming distance scoring, then fused with facial scores using weighted score-level fusion (60% Face / 40% Fingerprint), significantly reducing the EER.
+
+Phase 3 — Cryptographic Vault: AES encryption (via Python's cryptography.fernet library) locks all stored biometric template matrices (.npy files) into .enc payloads, accessible only through an authorized CLI.
+---
 ---
 
 ## Features
@@ -39,6 +38,10 @@ This project implements a **biometric authentication system** using facial image
 ---
 
 ## Dataset
+Primary (Face): Live webcam captures, organized into per-subject folders.
+
+Secondary (Fingerprint): Kaggle fingerprint dataset.
+
 
 **ORL Face Database** (also known as the AT&T Database of Faces)
 
@@ -69,43 +72,6 @@ dataset/
 | Enrollment Set | img1, img2 per person | Registration / Template creation |
 | Test Set | img3+ per person | Verification / Identification |
 
----
-
-## Project Structure
-
-```
-biometric-auth-system/
-│
-├── dataset/                    # ORL face images (enrollment + test splits)
-│
-├── preprocessing/
-│   └── preprocess.py           # Grayscale, resize, normalize, denoise, equalize
-│
-├── features/
-│   └── extract_features.py     # ORB/SIFT feature extraction, template generation
-│
-├── matching/
-│   └── authenticate.py         # Verification (1:1) and identification (1:N)
-│
-├── evaluation/
-│   ├── threshold_test.py       # FAR/FRR at multiple thresholds
-│   └── metrics.py              # EER calculation, ROC/DET curve plotting
-│
-├── security/
-│   └── encrypt_templates.py    # Fernet encryption for stored biometric templates
-│
-├── multimodal/
-│   └── score_fusion.py         # Optional: combine two biometric scores
-│
-├── templates/                  # Stored (encrypted) biometric templates
-│
-├── outputs/                    # Graphs, screenshots, results
-│
-├── requirements.txt
-└── README.md
-```
-
----
 
 ## Tech Stack
 
@@ -125,8 +91,8 @@ biometric-auth-system/
 **1. Clone the repository**
 
 ```bash
-git clone https://github.com/your-username/biometric-auth-system.git
-cd biometric-auth-system
+git clone https://github.com/your-username/biometric-security-project.git
+cd biometric-security-project
 ```
 
 **2. Install dependencies**
@@ -143,9 +109,12 @@ pip install -r requirements.txt
 
 **3. Download the dataset**
 
-Download the ORL dataset from [Kaggle](https://www.kaggle.com/datasets/tavarez/the-orl-database-for-training-and-testing) and place it in the `dataset/` folder following the structure above.
-
+Download the ORL dataset from [Kaggle](https://www.kaggle.com/datasets/tavarez/the-orl-database-for-training-and-testing) and place it in the `biometric-data/` folder 
+Download gerprint dataset as well from [fingerprint_dataset](https://www.kaggle.com/datasets/kundurunonieshreddy/finger-printdataset)the Fin
 ---
+
+
+
 
 ## How It Works
 
@@ -155,6 +124,8 @@ The dataset is downloaded and organized into per-person subfolders. Images are m
 
 - **Enrollment set** — used to create biometric templates (registration phase)
 - **Test set** — used during authentication (verification/identification phase)
+
+- task1_data_pipeline.py initializes the biometric_data/ directory tree and captures live facial images via webcam, strictly routing frames into enrolment_set/ or test_set/ subdirectories.
 
 Common data quality issues logged during this step:
 - Blurry images
@@ -194,7 +165,7 @@ equalized = cv2.equalizeHist(resized)                  # Step 6: Contrast enhanc
 
 ### 3. Feature Extraction & Template Generation
 
-Images are converted into compact numerical vectors called **biometric templates**.
+Images are converted into compact numerical vectors called **biometric templates**.ORB (Oriented FAST and Rotated BRIEF) detects spatially invariant keypoints and computes binary descriptors. These descriptors form the biometric template stored as a .npy NumPy array.
 
 ```python
 orb = cv2.ORB_create()
@@ -216,30 +187,19 @@ Templates are stored securely for use during the matching phase.
 
 ---
 
-### 4. Authentication & Identification
+### 4. Matching & Score Generation
 
-The matching engine uses Euclidean distance to compare a live face (the "probe") against the saved templates in the database.
+The matching engine uses Euclidean distance to compare a live face (the "probe") against the saved templates in the database.task4_euclidean_matching.py performs 1:N comparisons — every test probe against every enrolled template. Comparisons between the same subject populate genuine_scores.npy; cross-subject comparisons populate impostor_scores.npy
 
 Two types of scores are generated:
-
 
 Genuine scores — a user compared against their own template
 Impostor scores — a user compared against someone else's template
 
 
-In our testing, genuine comparisons averaged ~21 matching points, while impostor comparisons averaged only ~6. Both score arrays are saved to disk with np.save() so the matching algorithm doesn't need to be re-run every time — this also feeds directly into Stage 5.
-
 **Verification (1:1)** — answers "Is this really Person X?"
 
-```
-Claimed Template  ←→  Stored Template for X  →  Match Score
-```
-
 **Identification (1:N)** — answers "Who is this person?"
-
-```
-Unknown Template  ←→  All Templates in Database  →  Best Match
-```
 
 **Similarity Measures:**
 
@@ -251,11 +211,10 @@ Match scores are recorded separately:
 - **Genuine scores** — same person compared to themselves
 - **Impostor scores** — different people compared to each other
 
----
 
 ### 5. Threshold Testing
 
-A threshold determines whether a match score is accepted or rejected.
+A threshold determines whether a match score is accepted or rejected.A full threshold sweep runs from 0 to the maximum recorded score. At each step, the system counts false acceptances (impostors let through) and false rejections (genuine users locked out), building a complete FAR/FRR trade-off table.
 
 ```
 If Score ≥ Threshold → ACCEPT (person verified)
@@ -281,6 +240,7 @@ Thresholds tested: `0.50, 0.60, 0.70, 0.80, 0.90`
 ---
 
 ### 6. Performance Evaluation
+task6_performance.py finds the Equal Error Rate (EER) — the threshold where FAR = FRR — and renders ROC and DET curves. The unimodal facial baseline settled at EER = 35.80%.
 Running this stage opens a window with two graphs:
 
 1. FAR vs. FRR Graph
@@ -330,7 +290,7 @@ Fingerprint pipeline:
 CLAHE (Contrast Limited Adaptive Histogram Equalization) — enhances ridge contrast
 Binary Thresholding — isolates the fingerprint ridge structure
 Hamming distance — used to score how closely two fingerprints match
-
+ To improve on the face-only (unimodal) system, we added a second biometric: fingerprint matching, then combined both for stronger security.
 
 Combining the two systems:
 Since face scores (Euclidean distance) and fingerprint scores (Hamming distance) use different scales, both are converted to a common scale using Min-Max Normalization.
@@ -386,30 +346,12 @@ Steps:
 
 ### 8.  Security & Encryption
 
-Faces and fingerprints can't be "reset" like a password, so the stored templates need strong protection.
+task8_template_security.py applies AES symmetric encryption via cryptography.fernet to all .npy template matrices, locking them into .enc payloads. Even if the database is exfiltrated, the biometric templates remain cryptographically unreadable without the vault key. 
+Faces and fingerprints can't be "reset" like a password, so the stored templates need strong protection.Two protections were implemented:
 
-1. Threat Identification
-We mapped out where the system could be attacked — during capture, storage, and matching.
+1.AES (Fernet) encryption of the template database, controlled via a command-line interface built with argparse. Separate --encrypt and --decrypt flags keep the two operations from ever running together, so the database can't accidentally be left in an inconsistent or exposed state. Even if the underlying files were exfiltrated, the templates inside remain unreadable without the key.
 
-2. Database Encryption
-The template database is locked using AES encryption, built as a command-line tool with Python's argparse:
-
-bashpython secure_db.py --encrypt   # locks the database
-python secure_db.py --decrypt   # unlocks the database
-
-Keeping --encrypt and --decrypt as separate flags means the two actions can never run at the same time by accident. Even if someone steals the database files, the templates inside are unreadable without the key.
-
-3. Cancelable Biometrics (Concept)
-We also looked into cancelable biometrics — scrambling a template through a one-way transformation before saving it. If a template is ever compromised, it can be revoked and the user re-enrolled with a new transformed version, similar to resetting a password.
-
-**Ethical Considerations:**
-
-- User consent must be obtained before capturing biometrics
-- Data retention policies must be defined and enforced
-- Users have the right to request deletion of their data
-- System must comply with relevant data protection regulations (e.g., NDPR in Nigeria, GDPR in Europe)
-
----
+2.Cancelable biometrics — templates are passed through a one-way, irreversible transformation before being stored. If a database is ever compromised, administrators can revoke the affected templates and re-enroll the user with a new transformation, effectively giving biometric credentials a "password reset" equivalent.
 
 ## Performance Metrics
 
@@ -441,15 +383,6 @@ Results are recorded and tabulated across thresholds:
 
 ---
 
-## Screenshots
-
-> _Add screenshots of your results here. Suggested images to include:_
-
-- `outputs/before_after_preprocessing.png` — Side-by-side original vs. processed image
-- `outputs/feature_keypoints.png` — Detected ORB keypoints on a face
-- `outputs/roc_curve.png` — ROC curve across thresholds
-- `outputs/det_curve.png` — DET curve
-- `outputs/far_frr_plot.png` — FAR and FRR vs. threshold graph
 
 ---
 
