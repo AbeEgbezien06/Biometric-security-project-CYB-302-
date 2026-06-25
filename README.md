@@ -91,8 +91,8 @@ dataset/
 **1. Clone the repository**
 
 ```bash
-git clone https://github.com/your-username/biometric-security-project.git
-cd biometric-security-project
+git clone https://github.com/AbeEgbezien06/Biometric-security-project-CYB-302-.git
+cd Biometric-security-project-CYB-302-
 ```
 
 **2. Install dependencies**
