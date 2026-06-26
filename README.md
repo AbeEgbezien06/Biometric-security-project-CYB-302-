@@ -1,11 +1,5 @@
-# Biometric-security-project-CYB-302-
-A Python-based multimodal biometric authentication system that progresses from a unimodal facial recognition baseline through to a secure, fused Face + Fingerprint pipeline with cryptographic template protection. Built as a group laboratory assessment covering the full biometric pipeline — from live data capture and preprocessing to feature extraction, score-level fusion, threshold testing, performance evaluation, and AES-encrypted storage.
-
 # 🔐 Biometric Authentication System
-
-A Python-based biometric authentication system that uses facial recognition to verify and identify individuals. Built as a group project using the ORL Face Database, this system covers the full biometric pipeline — from data capture and preprocessing to feature extraction, matching, threshold testing, and security.
-
----
+A Python-based multimodal biometric authentication system that progresses from a unimodal facial recognition baseline through to a secure, fused Face + Fingerprint pipeline with cryptographic template protection. Built as a group laboratory assessment covering the full biometric pipeline — from live data capture and preprocessing to feature extraction, score-level fusion, threshold testing, performance evaluation, and AES-encrypted storage.
 
 
 ## Overview
