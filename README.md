@@ -109,8 +109,8 @@ Impostor scores : a user compared against someone else's template
 
 Match scores are recorded separately:
 
-- **Genuine scores** — same person compared to themselves
-- **Impostor scores** — different people compared to each other
+- **Genuine scores** : same person compared to themselves
+- **Impostor scores** : different people compared to each other
 
 ---
 
@@ -118,10 +118,10 @@ Match scores are recorded separately:
 
 A threshold determines whether a match score is accepted or rejected.A full threshold sweep runs from 0 to the maximum recorded score. At each step, the system counts false acceptances (impostors let through) and false rejections (genuine users locked out), building a complete FAR/FRR trade-off table.
 
-Phase 1 — Proof of Concept
+Phase 1 : Proof of Concept
 A single fixed threshold (e.g. T = 15) is tested against individual scores to show the system can make a basic Accept/Reject decision.
 
-Phase 2 — Full Threshold Sweep
+Phase 2 : Full Threshold Sweep
 The threshold is automatically swept from 0 up to the highest recorded score. At each step, the system counts how many impostors got through and how many genuine users got locked out. This maps the full trade-off between security and usability.
 
 What different thresholds mean in practice:
@@ -132,7 +132,7 @@ Thresholds tested: `0.50, 0.60, 0.70, 0.80, 0.90`
 
 
 ### 6. Performance Evaluation
-task6_performance.py finds the Equal Error Rate (EER) — the threshold where FAR = FRR — and renders ROC and DET curves. The unimodal facial baseline settled at EER = 35.80%.
+task6_performance.py finds the Equal Error Rate (EER) : the threshold where FAR = FRR  and renders ROC and DET curves. The unimodal facial baseline settled at EER = 35.80%.
 Running this stage opens a window with two graphs:
 
 1. FAR vs. FRR Graph
@@ -143,7 +143,7 @@ Plots Genuine Acceptance Rate against False Acceptance Rate. A curve that bends 
 
 
 ### 7. Multimodal Biometrics 
-— Multimodal Fusion (Face + Fingerprint)
+Multimodal Fusion (Face + Fingerprint)
 The fingerprint pipeline applies CLAHE to enhance ridge contrast, Binary Thresholding to isolate structural patterns, and Hamming distance for structural matching. Since Euclidean (facial) and Hamming (fingerprint) scores operate on different scales, both are brought to a common 0.0–1.0 range via Min-Max Normalization before the weighted fusion step:
 
 To improve on the face-only (unimodal) system, we added a second biometric: fingerprint matching, then combined both for stronger security.
@@ -160,7 +160,7 @@ Comparing ROC curves of the fused system against the face-only baseline showed t
 
 The work is split across three scripts:
 
-1. task7a_fingerprint_engine.py — Fingerprint Pipeline
+1. task7a_fingerprint_engine.py : Fingerprint Pipeline
 A separate pipeline built specifically for fingerprints, since they need ridge analysis rather than facial geometry:
 
 
@@ -168,7 +168,7 @@ CLAHE (Contrast Limited Adaptive Histogram Equalization) and Binary Thresholding
 Extracts features and calculates Hamming distance scores (instead of Euclidean, since fingerprint data is structural, not spatial)
 
 
-2. task7b_multimodal_fusion.py — Fusion Layer
+2. task7b_multimodal_fusion.py : Fusion Layer
 Face scores (Euclidean) and fingerprint scores (Hamming) are on different scales, so this script:
 
 
@@ -176,7 +176,7 @@ Applies Min-Max Normalization to bring both score types onto the same 0.0–1.0 
 Combines them using a weighted sum: 60% face + 40% fingerprint
 
 
-3. task7c_comparative_evaluation.py — Comparison
+3. task7c_comparative_evaluation.py : Comparison
 Plots the ROC curves of the unimodal (face-only) and multimodal (face + fingerprint) systems on the same graph.
 
 Result: The multimodal system had a noticeably lower EER than the face-only system. Combining two biometrics narrows the overlap between genuine and impostor scores, making the system more resistant to single points of failure.
@@ -208,10 +208,10 @@ Results are recorded and tabulated across thresholds:
 
 ## References
 
-- ORL Face Database — [Kaggle](https://www.kaggle.com/datasets/tavarez/the-orl-database-for-training-and-testing)
-- OpenCV Documentation — [https://docs.opencv.org](https://docs.opencv.org)
-- scikit-learn — [https://scikit-learn.org](https://scikit-learn.org)
-- cryptography (Fernet) — [https://cryptography.io](https://cryptography.io)
+- ORL Face Database - [Kaggle](https://www.kaggle.com/datasets/tavarez/the-orl-database-for-training-and-testing)
+- OpenCV Documentation -[https://docs.opencv.org](https://docs.opencv.org)
+- scikit-learn - [https://scikit-learn.org](https://scikit-learn.org)
+- cryptography (Fernet) - [https://cryptography.io](https://cryptography.io)
 
 ---
 
