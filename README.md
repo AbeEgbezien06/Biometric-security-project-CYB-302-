@@ -11,7 +11,7 @@ Phase 1 — Unimodal Facial Baseline: Live webcam capture, ORB feature extractio
 Phase 2 — Multimodal Fusion: A secondary fingerprint modality (Kaggle dataset) is processed via CLAHE and Hamming distance scoring, then fused with facial scores using weighted score-level fusion (60% Face / 40% Fingerprint), significantly reducing the EER.
 
 Phase 3 — Cryptographic Vault: AES encryption (via Python's cryptography.fernet library) locks all stored biometric template matrices (.npy files) into .enc payloads, accessible only through an authorized CLI.
----
+
 
 ## Features
 
@@ -25,7 +25,6 @@ Phase 3 — Cryptographic Vault: AES encryption (via Python's cryptography.ferne
 - ROC curve comparison: unimodal vs. multimodal
 - Min-Max Normalization for cross-modality score alignment
 - AES encryption / decryption CLI for biometric template protection
----
 
 ## Datasets Used 
 Primary (Face): Live webcam captures, organized into per-subject folders.
@@ -33,7 +32,6 @@ Primary (Face): Live webcam captures, organized into per-subject folders.
 Secondary (Fingerprint): Kaggle fingerprint dataset.
 
 
----
 
 ## Tech Stack
 
@@ -79,7 +77,7 @@ Common data quality issues logged during this step:
 
 ### 2. Image Preprocessing
 
-Each image passes through a standardized pipeline before feature extraction: grayscale conversion, Histogram Equalization for contrast normalization, and Gaussian blur for noise reduction. Outputs are cached in processed_ directories.
+Each image passes through a standardized pipeline before feature extraction: grayscale conversion, Histogram Equalization for contrast normalization, and Gaussian blur for noise reduction. Outputs are cached in processed directories.
 
 ### 3. Feature Extraction & Template Generation
 
@@ -87,13 +85,13 @@ Images are converted into compact numerical vectors called **biometric templates
 
 Templates are stored securely for use during the matching phase.
 
-> **Raw Image vs. Template:** A raw image is the actual photo. A biometric template is a compact mathematical representation of that photo — smaller, faster to compare, and safer to store.
+> **Raw Image vs. Template:** A raw image is the actual photo. A biometric template is a compact mathematical representation of that photo smaller, faster to compare, and safer to store.
 
 ---
 
 ### 4. Matching & Score Generation
 
-The matching engine uses Euclidean distance to compare a live face (the "probe") against the saved templates in the database.task4_euclidean_matching.py performs 1:N comparisons — every test probe against every enrolled template. Comparisons between the same subject populate genuine_scores.npy; cross-subject comparisons populate impostor_scores.npy
+The matching engine uses Euclidean distance to compare a live face (the "probe") against the saved templates in the database.task4_euclidean_matching.py performs 1:N comparisons : every test probe against every enrolled template. Comparisons between the same subject populate genuine_scores.npy; cross-subject comparisons populate impostor_scores.npy
 
 Two types of scores are generated:
 
