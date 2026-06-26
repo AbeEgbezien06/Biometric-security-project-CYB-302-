@@ -1,5 +1,5 @@
 # 🔐 Biometric Authentication System
-A Python-based multimodal biometric authentication system that progresses from a unimodal facial recognition baseline through to a secure, fused Face + Fingerprint pipeline with cryptographic template protection. Built as a group laboratory assessment covering the full biometric pipeline — from live data capture and preprocessing to feature extraction, score-level fusion, threshold testing, performance evaluation, and AES-encrypted storage.
+A Python-based multimodal biometric authentication system that progresses from a unimodal facial recognition baseline through to a secure, fused Face + Fingerprint pipeline with cryptographic template protection. Built as a group laboratory assessment covering the full biometric pipeline from live data capture and preprocessing to feature extraction, score-level fusion, threshold testing, performance evaluation, and AES-encrypted storage.
 
 
 ## Overview
@@ -10,8 +10,7 @@ Phase 1 — Unimodal Facial Baseline: Live webcam capture, ORB feature extractio
 
 Phase 2 — Multimodal Fusion: A secondary fingerprint modality (Kaggle dataset) is processed via CLAHE and Hamming distance scoring, then fused with facial scores using weighted score-level fusion (60% Face / 40% Fingerprint), significantly reducing the EER.
 
-Phase 3 — Cryptographic Vault: AES encryption (via Python's cryptography.fernet library) locks all stored biometric template matrices (.npy files) into .enc payloads, accessible only through an authorized CLI.
-
+Phase 3 — Cryptographic Vault: AES encryption (via Python's cryptography.fernet library) locks all stored biometric template matrices (.npy files) into .enc payloads, accessible only through an authorized CLI
 
 ## Features
 
@@ -57,7 +56,7 @@ Run scripts in order. Each task depends on the .npy caches written by the previo
 
 Download the ORL dataset from [Kaggle](https://www.kaggle.com/datasets/tavarez/the-orl-database-for-training-and-testing) and place it in the `biometric-data/` folder 
 Download the Fingerprint dataset as well from [fingerprint_dataset](https://www.kaggle.com/datasets/kundurunonieshreddy/finger-printdataset)
----
+
 
 ## How It Works
 
@@ -95,13 +94,13 @@ The matching engine uses Euclidean distance to compare a live face (the "probe")
 
 Two types of scores are generated:
 
-Genuine scores — a user compared against their own template
-Impostor scores — a user compared against someone else's template
+Genuine scores :a user compared against their own template
+Impostor scores : a user compared against someone else's template
 
 
-**Verification (1:1)** — answers "Is this really Person X?"
+**Verification (1:1)** : answers "Is this really Person X?"
 
-**Identification (1:N)** — answers "Who is this person?"
+**Identification (1:N)** : answers "Who is this person?"
 
 **Similarity Measures:**
 
