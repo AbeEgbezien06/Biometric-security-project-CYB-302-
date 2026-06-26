@@ -1,4 +1,4 @@
-# 🔐 Biometric Authentication System
+#  Biometric Authentication System
 
 A simple biometric authentication system that:
 Uses a biometric dataset (Face or Fingerprint), Cleans and processes images, Extracts features from images, Compares people for matching, Tests different security thresholds , Calculates accuracy metrics,Tries multimodal authentication (optional enhancement) and Protects biometric data .it  uses facial recognition to verify and identify individuals. Built as a group project using the ORL Face Database,
@@ -12,14 +12,14 @@ Phase 1 — Unimodal Facial Baseline: Live webcam capture, ORB feature extractio
 
 Phase 2 — Multimodal Fusion: A secondary fingerprint modality (Kaggle dataset) is processed via CLAHE and Hamming distance scoring, then fused with facial scores using weighted score-level fusion (60% Face / 40% Fingerprint), significantly reducing the EER.
 
+
+
 Phase 3 — Cryptographic Vault: AES encryption (via Python's cryptography.fernet library) locks all stored biometric template matrices (.npy files) into .enc payloads, accessible only through an authorized CLI.
----
----
 
 ## Features
 
 - ✅ Face image preprocessing (grayscale, resize, normalize, denoise, enhance contrast)
-- ✅ Feature extraction using ORB / SIFT / face embeddings
+- ✅ Feature extraction using ORB
 - ✅ Biometric template generation and storage
 - ✅ 1:1 Verification (identity claim matching)
 - ✅ 1:N Identification (unknown person vs. database)
@@ -29,10 +29,9 @@ Phase 3 — Cryptographic Vault: AES encryption (via Python's cryptography.ferne
 - ✅ Biometric template encryption (Fernet)
 - ✅ Optional: Multimodal score fusion
 
----
 
 ## Dataset
-Primary (Face): Live webcam captures, organized into per-subject folders.
+Primary (Face): Live webcam captures, organized into per-subject folders.(Enrollment and tests)
 
 Secondary (Fingerprint): Kaggle fingerprint dataset.
 
@@ -61,12 +60,11 @@ Secondary (Fingerprint): Kaggle fingerprint dataset.
 | **OpenCV (`cv2`)** | Image loading, preprocessing, feature extraction |
 | **NumPy** | Numerical operations and vector math |
 | **Matplotlib** | Plotting ROC/DET curves and result graphs |
-| **scikit-learn** | Similarity metrics, evaluation utilities |
 | **cryptography (Fernet)** | Encrypting biometric templates at rest |
 
 ---
 
-## Installation
+## local Installation
 
 **1. Clone the repository**
 
@@ -78,7 +76,7 @@ cd Biometric-security-project-CYB-302-
 **2. Install dependencies**
 
 ```bash
-pip install opencv-python numpy matplotlib scikit-learn cryptography
+pip install opencv-python numpy matplotlib cryptography
 ```
 
 Or using the requirements file:
@@ -93,9 +91,6 @@ Download the ORL dataset from [Kaggle](https://www.kaggle.com/datasets/tavarez/t
 Download gerprint dataset as well from [fingerprint_dataset](https://www.kaggle.com/datasets/kundurunonieshreddy/finger-printdataset)the Fin
 ---
 
-
-
-
 ## How It Works
 
 ### 1. Data Preparation
@@ -103,67 +98,26 @@ Download gerprint dataset as well from [fingerprint_dataset](https://www.kaggle.
 The dataset is downloaded and organized into per-person subfolders. Images are manually reviewed and split into:
 
 - **Enrollment set** — used to create biometric templates (registration phase)
+
 - **Test set** — used during authentication (verification/identification phase)
 
-- task1_data_pipeline.py initializes the biometric_data/ directory tree and captures live facial images via webcam, strictly routing frames into enrolment_set/ or test_set/ subdirectories.
+- task1_data_pipeline.py initializes the biometric_data/ directory tree and captures live facial images via webcam, strictly routing frames into enrolment_set/ or test_set/ subdirectories.(60 % enrollments and 40% tests in partitioning )
 
-Common data quality issues logged during this step:
-- Blurry images
-- Poor lighting conditions
-- Partially occluded faces
-- Unusual angles
-
-> **Why this matters:** Poor image quality leads to unreliable feature extraction, which directly increases false acceptances and false rejections.
-
----
 
 ### 2. Image Preprocessing
 
-Each image is passed through a standardized preprocessing pipeline before feature extraction:
+Each image is passed through a standardized preprocessing pipeline before feature extraction which implemented graysscale conversion co sistebt aspect ratio of 340 z 240 Histogram Equalization , normalization , amongst other best practices .....
 
-```python
-import cv2
-
-img = cv2.imread("image.jpg")                          # Step 1: Load
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)           # Step 2: Grayscale
-resized = cv2.resize(gray, (100, 100))                 # Step 3: Resize to 100×100
-normalized = resized / 255.0                           # Step 4: Normalize intensity
-blurred = cv2.GaussianBlur(normalized, (5, 5), 0)     # Step 5: Remove noise
-equalized = cv2.equalizeHist(resized)                  # Step 6: Contrast enhancement
-```
-
-| Step | Operation | Reason |
-|------|-----------|--------|
-| Load | `cv2.imread()` | Read image from disk |
-| Grayscale | `cv2.cvtColor()` | Reduce complexity, standardize input |
-| Resize | `cv2.resize()` | Ensure all images are the same size |
-| Normalize | Divide by 255 | Bring pixel values to [0, 1] range |
-| Denoise | Gaussian / Median Blur | Remove noise artifacts |
-| Equalize | Histogram Equalization | Improve low-contrast images |
-
----
 
 ### 3. Feature Extraction & Template Generation
 
-Images are converted into compact numerical vectors called **biometric templates**.ORB (Oriented FAST and Rotated BRIEF) detects spatially invariant keypoints and computes binary descriptors. These descriptors form the biometric template stored as a .npy NumPy array.
-
-```python
-orb = cv2.ORB_create()
-keypoints, descriptors = orb.detectAndCompute(image, None)
-# descriptors → [0.21, 0.55, 0.18, ...]  ← this is the biometric template
-```
+Images are converted into compact numerical vectors called **biometric templates**.ORB (Oriented FAST and Rotated BRIEF) detects spatially invariant keypoints and computes binary descriptors. These descriptors form the biometric template stored as .npy files and written to the hard drive 
 
 **Available methods:**
-
-| Method | Difficulty | Notes |
-|--------|-----------|-------|
-| ORB | Beginner | Fast, open-source, good for face matching |
-
-Templates are stored securely for use during the matching phase.
+| ORB algorithm
 
 > **Raw Image vs. Template:** A raw image is the actual photo. A biometric template is a compact mathematical representation of that photo — smaller, faster to compare, and safer to store.
 
----
 
 ### 4. Matching & Score Generation
 
