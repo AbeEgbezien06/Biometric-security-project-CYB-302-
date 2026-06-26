@@ -1,13 +1,7 @@
-# Biometric-security-project-CYB-302
-A simple biometric authentication system that:
-Uses a biometric dataset (Face or Fingerprint), Cleans and processes images, Extracts features from images, Compares people for matching, Tests different security thresholds , Calculates accuracy metrics,Tries multimodal authentication (optional enhancement) and Protects biometric data
-
 # 🔐 Biometric Authentication System
 
-A Python-based biometric authentication system that uses facial recognition to verify and identify individuals. Built as a group project using the ORL Face Database, this system covers the full biometric pipeline — from data capture and preprocessing to feature extraction, matching, threshold testing, and security.
-
----
-
+A simple biometric authentication system that:
+Uses a biometric dataset (Face or Fingerprint), Cleans and processes images, Extracts features from images, Compares people for matching, Tests different security thresholds , Calculates accuracy metrics,Tries multimodal authentication (optional enhancement) and Protects biometric data .it  uses facial recognition to verify and identify individuals. Built as a group project using the ORL Face Database,
 
 ## Overview
  Overview
@@ -50,20 +44,6 @@ Secondary (Fingerprint): Kaggle fingerprint dataset.
 - Variations in lighting, expression, and pose
 
 **Download:** [Kaggle — ORL Database for Training and Testing](https://www.kaggle.com/datasets/tavarez/the-orl-database-for-training-and-testing)
-
-**Folder Structure:**
-
-```
-dataset/
-├── person1/
-│   ├── img1.jpg
-│   ├── img2.jpg
-│   └── img3.jpg
-├── person2/
-│   ├── img1.jpg
-│   └── ...
-└── ...
-```
 
 **Split:**
 
@@ -178,8 +158,6 @@ keypoints, descriptors = orb.detectAndCompute(image, None)
 | Method | Difficulty | Notes |
 |--------|-----------|-------|
 | ORB | Beginner | Fast, open-source, good for face matching |
-| SIFT | Intermediate | More accurate, scale-invariant |
-| Face Embeddings | Advanced | Deep learning-based, highest accuracy |
 
 Templates are stored securely for use during the matching phase.
 
@@ -189,17 +167,17 @@ Templates are stored securely for use during the matching phase.
 
 ### 4. Matching & Score Generation
 
-The matching engine uses Euclidean distance to compare a live face (the "probe") against the saved templates in the database.task4_euclidean_matching.py performs 1:N comparisons — every test probe against every enrolled template. Comparisons between the same subject populate genuine_scores.npy; cross-subject comparisons populate impostor_scores.npy
+The matching engine uses Euclidean distance to compare a live face (the "probe") against the saved templates in the database.task4_euclidean_matching.py performs 1:N comparisons ,every test probe against every enrolled template. Comparisons between the same subject populate genuine_scores.npy; cross-subject comparisons populate impostor_scores.npy
 
 Two types of scores are generated:
 
-Genuine scores — a user compared against their own template
-Impostor scores — a user compared against someone else's template
+Genuine scores - a user compared against their own template
+Impostor scores -a user compared against someone else's template
 
 
-**Verification (1:1)** — answers "Is this really Person X?"
+**Verification (1:1)** : answers "Is this really Person X?"
 
-**Identification (1:N)** — answers "Who is this person?"
+**Identification (1:N)** : answers "Who is this person?"
 
 **Similarity Measures:**
 
@@ -208,8 +186,8 @@ Impostor scores — a user compared against someone else's template
 
 Match scores are recorded separately:
 
-- **Genuine scores** — same person compared to themselves
-- **Impostor scores** — different people compared to each other
+- **Genuine scores** : same person compared to themselves
+- **Impostor scores** : different people compared to each other
 
 
 ### 5. Threshold Testing
@@ -270,8 +248,8 @@ FRR = False Rejections / Total Genuine Attempts
 
 **Visualizations generated:**
 
-- 📈 **ROC Curve** — True Positive Rate vs. False Positive Rate
-- 📉 **DET Curve** — FRR vs. FAR (log scale)
+- 📈 **ROC Curve** : True Positive Rate vs. False Positive Rate
+- 📉 **DET Curve** : FRR vs. FAR (log scale)
 
 ```python
 import matplotlib.pyplot as plt
@@ -287,9 +265,9 @@ To improve on the face-only (unimodal) system, we added a second biometric: fing
 
 Fingerprint pipeline:
 
-CLAHE (Contrast Limited Adaptive Histogram Equalization) — enhances ridge contrast
-Binary Thresholding — isolates the fingerprint ridge structure
-Hamming distance — used to score how closely two fingerprints match
+CLAHE (Contrast Limited Adaptive Histogram Equalization) : enhances ridge contrast
+Binary Thresholding : isolates the fingerprint ridge structure
+Hamming distance :used to score how closely two fingerprints match
  To improve on the face-only (unimodal) system, we added a second biometric: fingerprint matching, then combined both for stronger security.
 
 Combining the two systems:
@@ -304,7 +282,7 @@ Comparing ROC curves of the fused system against the face-only baseline showed t
 
 The work is split across three scripts:
 
-1. task7a_fingerprint_engine.py — Fingerprint Pipeline
+1. task7a_fingerprint_engine.py : Fingerprint Pipeline
 A separate pipeline built specifically for fingerprints, since they need ridge analysis rather than facial geometry:
 
 
@@ -312,7 +290,7 @@ CLAHE (Contrast Limited Adaptive Histogram Equalization) and Binary Thresholding
 Extracts features and calculates Hamming distance scores (instead of Euclidean, since fingerprint data is structural, not spatial)
 
 
-2. task7b_multimodal_fusion.py — Fusion Layer
+2. task7b_multimodal_fusion.py :Fusion Layer
 Face scores (Euclidean) and fingerprint scores (Hamming) are on different scales, so this script:
 
 
@@ -320,7 +298,7 @@ Applies Min-Max Normalization to bring both score types onto the same 0.0–1.0 
 Combines them using a weighted sum: 60% face + 40% fingerprint
 
 
-3. task7c_comparative_evaluation.py — Comparison
+3. task7c_comparative_evaluation.py : Comparison
 Plots the ROC curves of the unimodal (face-only) and multimodal (face + fingerprint) systems on the same graph.
 
 Result: The multimodal system had a noticeably lower EER than the face-only system. Combining two biometrics narrows the overlap between genuine and impostor scores, making the system more resistant to single points of failure.
@@ -340,7 +318,7 @@ Steps:
 3. Apply fusion rule (sum or weighted average)
 4. Re-run matching with fused scores and compare EER
 
-> **Why multimodal?** If one biometric fails (e.g., dirty fingerprint), the second modality provides a fallback — improving both accuracy and resistance to spoofing.
+> **Why multimodal?** If one biometric fails (e.g., dirty fingerprint), the second modality provides a fallback , improving both accuracy and resistance to spoofing.
 
 ---
 
@@ -351,7 +329,7 @@ Faces and fingerprints can't be "reset" like a password, so the stored templates
 
 1.AES (Fernet) encryption of the template database, controlled via a command-line interface built with argparse. Separate --encrypt and --decrypt flags keep the two operations from ever running together, so the database can't accidentally be left in an inconsistent or exposed state. Even if the underlying files were exfiltrated, the templates inside remain unreadable without the key.
 
-2.Cancelable biometrics — templates are passed through a one-way, irreversible transformation before being stored. If a database is ever compromised, administrators can revoke the affected templates and re-enroll the user with a new transformation, effectively giving biometric credentials a "password reset" equivalent.
+2.Cancelable biometrics : templates are passed through a one-way, irreversible transformation before being stored. If a database is ever compromised, administrators can revoke the affected templates and re-enroll the user with a new transformation, effectively giving biometric credentials a "password reset" equivalent.
 
 ## Performance Metrics
 
@@ -366,25 +344,6 @@ Results are recorded and tabulated across thresholds:
 
 ---
 
-## Team & Responsibilities
-
-| Student | Role |
-|---------|------|
-| Student 1 | Dataset Collection |
-| Student 2 | Dataset Organization |
-| Student 3 | Image Preprocessing |
-| Student 4 | Feature Extraction |
-| Student 5 | Template Generation |
-| Student 6 | Authentication & Matching |
-| Student 7 | Threshold Testing |
-| Student 8 | FAR / FRR / EER Calculation |
-| Student 9 | Security & Encryption |
-| Student 10 | Report Writing & Presentation |
-
----
-
-
----
 
 ## Project Timeline
 
