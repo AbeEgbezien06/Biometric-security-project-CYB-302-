@@ -16,4 +16,5 @@ biometric_data/*
 *.npy
 
 *.key
+biometric_vault.key
 
