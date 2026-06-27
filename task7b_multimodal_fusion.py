@@ -1,7 +1,7 @@
 import numpy as np
 import os
 
-# --- INGESTION: LOADING BOTH PARALLEL PIPELINES ---
+# --- INGESTION ---
 FACE_GEN = "genuine_scores.npy"
 FACE_IMP = "impostor_scores.npy"
 FP_GEN = "fp_genuine_scores.npy"
@@ -11,27 +11,21 @@ def load_all_scores():
     files = [FACE_GEN, FACE_IMP, FP_GEN, FP_IMP]
     for f in files:
         if not os.path.exists(f):
-            print(f"[-] Error: Missing {f}. Ensure Task 4 and Task 7A have been run.")
+            print(f"[-] Error: Missing {f}. Ensure Phase 1 and Phase 2 have been run.")
             return None, None, None, None
             
     return np.load(FACE_GEN), np.load(FACE_IMP), np.load(FP_GEN), np.load(FP_IMP)
 
-def min_max_normalize(scores):
-    """Squashes raw scores to a universal 0.0 to 1.0 mathematical scale."""
-    min_val = np.min(scores)
-    max_val = np.max(scores)
-    if max_val == min_val:
-        return np.zeros_like(scores)
-    return (scores - min_val) / (max_val - min_val)
-
 def align_array_sizes(arr1, arr2):
-    """
-    Because the Face dataset and Fingerprint dataset might have different numbers 
-    of comparisons, we must strictly align their lengths to fuse them accurately.
-    """
     min_len = min(len(arr1), len(arr2))
-    # We slice both arrays down to the exact same size
     return arr1[:min_len], arr2[:min_len]
+
+# --- THE GLOBAL NORMALIZATION FIX (NO INVERSION) ---
+def global_min_max_normalize(scores, global_min, global_max):
+    """Normalizes using the GLOBAL min and max."""
+    if global_max == global_min:
+        return np.zeros_like(scores)
+    return (scores - global_min) / (global_max - global_min)
 
 def execute_fusion():
     print("\n[*] Booting Task 7B: Multimodal Fusion Engine...")
@@ -44,16 +38,26 @@ def execute_fusion():
     face_g_aligned, fp_g_aligned = align_array_sizes(face_g, fp_g)
     face_i_aligned, fp_i_aligned = align_array_sizes(face_i, fp_i)
 
-    # 2. Min-Max Normalization
-    print("[*] Normalizing disparate metrics to 0.0 - 1.0 scale...")
-    norm_face_g = min_max_normalize(face_g_aligned)
-    norm_face_i = min_max_normalize(face_i_aligned)
+    # 2. Find GLOBAL Minimums and Maximums
+    print("[*] Calculating Global Dataset Bounds...")
+    global_face_min = min(np.min(face_g_aligned), np.min(face_i_aligned))
+    global_face_max = max(np.max(face_g_aligned), np.max(face_i_aligned))
     
-    norm_fp_g = min_max_normalize(fp_g_aligned)
-    norm_fp_i = min_max_normalize(fp_i_aligned)
+    global_fp_min = min(np.min(fp_g_aligned), np.min(fp_i_aligned))
+    global_fp_max = max(np.max(fp_g_aligned), np.max(fp_i_aligned))
 
-    # 3. Score-Level Fusion (Weighted Sum)
-    # Architecture Decision: We trust the Face pipeline 60%, Fingerprint 40%
+    # 3. Normalization (Straight Scaling, NO INVERSIONS)
+    print("[*] Applying GLOBAL Min-Max Normalization...")
+    
+    # Face (ORB Similarity) -> Higher is Better
+    norm_face_g = global_min_max_normalize(face_g_aligned, global_face_min, global_face_max)
+    norm_face_i = global_min_max_normalize(face_i_aligned, global_face_min, global_face_max)
+    
+    # Fingerprint (Minutiae Similarity) -> Higher is Better
+    norm_fp_g = global_min_max_normalize(fp_g_aligned, global_fp_min, global_fp_max)
+    norm_fp_i = global_min_max_normalize(fp_i_aligned, global_fp_min, global_fp_max)
+
+    # 4. Score-Level Fusion (Weighted Sum)
     WEIGHT_FACE = 0.6
     WEIGHT_FP = 0.4
     
@@ -65,14 +69,13 @@ def execute_fusion():
     print("TASK 7: MULTIMODAL SCORE-LEVEL FUSION RESULTS")
     print("="*60)
     print(f"[+] Architecture: Parallel Processing Pipelines")
-    print(f"[+] Normalization Algorithm: Min-Max Scaling")
-    print(f"[+] Fusion Rule: Weighted Sum ({WEIGHT_FACE*100}% Face | {WEIGHT_FP*100}% Fingerprint)")
+    print(f"[+] Normalization Algorithm: GLOBAL Min-Max Scaling")
+    print(f"[+] Fusion Rule: Weighted Sum ({WEIGHT_FACE*100}% Face ORB | {WEIGHT_FP*100}% Fingerprint Minutiae)")
     print("-" * 60)
     print(f"Average FUSED Genuine Score:  {np.mean(fused_genuine):.4f} (Closer to 1.0 is better)")
     print(f"Average FUSED Impostor Score: {np.mean(fused_impostor):.4f} (Closer to 0.0 is better)")
     print("="*60)
     
-    # Save the final fused arrays so you can plot a new ROC curve if desired
     np.save("fused_genuine_scores.npy", fused_genuine)
     np.save("fused_impostor_scores.npy", fused_impostor)
     print("[+] Fusion complete. Output cached successfully.")
