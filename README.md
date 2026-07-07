@@ -95,9 +95,9 @@ Download gerprint dataset as well from [fingerprint_dataset](https://www.kaggle.
 
 The dataset is downloaded and organized into per-person subfolders. Images are manually reviewed and split into:
 
-- **Enrollment set** — used to create biometric templates (registration phase)
+- **Enrollment set** : used to create biometric templates (registration phase)
 
-- **Test set** — used during authentication (verification/identification phase)
+- **Test set** : used during authentication (verification/identification phase)
 
 - task1_data_pipeline.py initializes the biometric_data/ directory tree and captures live facial images via webcam, strictly routing frames into enrolment_set/ or test_set/ subdirectories.(60 % enrollments and 40% tests in partitioning )
 
@@ -124,7 +124,7 @@ The matching engine uses Euclidean distance to compare a live face (the "probe")
 Two types of scores are generated:
 
 Genuine scores - a user compared against their own template
-Impostor scores -a user compared against someone else's template
+Impostor scores - a user compared against someone else's template
 
 
 **Verification (1:1)** : answers "Is this really Person X?"
