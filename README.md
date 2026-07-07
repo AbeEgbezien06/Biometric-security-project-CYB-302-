@@ -133,8 +133,8 @@ Impostor scores - a user compared against someone else's template
 
 **Similarity Measures:**
 
-- **Euclidean Distance** — lower score = more similar
-- **Cosine Similarity** — higher score = more similar
+- **Euclidean Distance**  lower score = more similar
+- **Cosine Similarity**  higher score = more similar
 
 Match scores are recorded separately:
 
@@ -170,7 +170,7 @@ Thresholds tested: `0.50, 0.60, 0.70, 0.80, 0.90`
 ---
 
 ### 6. Performance Evaluation
-task6_performance.py finds the Equal Error Rate (EER) — the threshold where FAR = FRR — and renders ROC and DET curves. The unimodal facial baseline settled at EER = 35.80%.
+task6_performance.py finds the Equal Error Rate (EER) the threshold where FAR = FRR  and renders ROC and DET curves. The unimodal facial baseline settled at EER = 35.80%.
 Running this stage opens a window with two graphs:
 
 1. FAR vs. FRR Graph
