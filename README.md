@@ -114,7 +114,7 @@ Images are converted into compact numerical vectors called **biometric templates
 **Available methods:**
 | ORB algorithm
 
-> **Raw Image vs. Template:** A raw image is the actual photo. A biometric template is a compact mathematical representation of that photo — smaller, faster to compare, and safer to store.
+> **Raw Image vs. Template:** A raw image is the actual photo. A biometric template is a compact mathematical representation of that photo  smaller, faster to compare, and safer to store.
 
 
 ### 4. Matching & Score Generation
@@ -150,10 +150,10 @@ A threshold determines whether a match score is accepted or rejected.A full thre
 If Score ≥ Threshold → ACCEPT (person verified)
 If Score < Threshold → REJECT (person denied)
 ```
-Phase 1 — Proof of Concept
+Phase 1 - Proof of Concept
 A single fixed threshold (e.g. T = 15) is tested against individual scores to show the system can make a basic Accept/Reject decision.
 
-Phase 2 — Full Threshold Sweep
+Phase 2 - Full Threshold Sweep
 The threshold is automatically swept from 0 up to the highest recorded score. At each step, the system counts how many impostors got through and how many genuine users got locked out. This maps the full trade-off between security and usability.
 
 What different thresholds mean in practice:
