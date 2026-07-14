@@ -84,7 +84,7 @@ def split_data_into_sets(source_directory, split_ratio=0.7):
             if not images:
                 continue
                 
-            random.shuffle(images)
+            images.sort()
             
             # Split logic
             split_idx = int(len(images) * split_ratio)

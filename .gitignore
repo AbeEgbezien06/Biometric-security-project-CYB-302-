@@ -14,3 +14,7 @@ biometric_data/*
 
 # Numpy Arrays (Scores, Templates)
 *.npy
+
+# Cryptographic Keys
+*.key
+biometric_vault.key
